@@ -34,7 +34,11 @@
       <v-sheet rounded :width="trickWidth + '%'" :height="trickHeight + '%'" class="ma-2 d-flex flex-column justify-center align-center trick-list-card"
                elevation="4" v-for="(trick, index) in trickListArray" :key="index">
               <!-- if the belt color is white or yellow make the text black, it would be unreadable -->
-        <div v-bind:style="{width: 100 + '%', height: 10 + '%', backgroundColor: trick.belt }"></div>
+        <div v-bind:style="{width: 100 + '%', height: 10 + '%', display: 'flex', flexFlow: 'row'}">
+          <div v-bind:style="{width: 80 + '%', height: 100 + '%', backgroundColor: trick.belt }"></div>
+          <div v-bind:style="{width: 10 + '%', height: 100 + '%', backgroundColor: trick.senior === true ? 'black' : trick.belt }"></div>
+          <div v-bind:style="{width: 10 + '%', height: 100 + '%', backgroundColor: trick.belt }"></div>
+        </div>
         <v-sheet width="100%" color="transparent" height="90%" class="d-flex justify-center align-center">
           <p v-bind:style="{ color: 'black', margin: 5 + '%' }" class="text-center">{{trickPrefixLookUpTable[index]}} {{trick.trick}} {{index + 1 === trickCount ? ' to spike' : ''}}</p>
         </v-sheet>
@@ -44,16 +48,20 @@
 </template>
 
 <script>
+
   export default {
     name: "trickGenerator",
+    components:{
+    },
+    props:['openTrickList'],
     data(){
       return{
         trickListArray: [],
         trickCountArray: [1,2,3,4,5,6,7,8,9,10],
-        trickCount: 5,
+        trickCount: 3,
         fromBeltLevel: 'White',
         toBeltLevel: 'White',
-        beltLevelArray: ['White','Yellow','Orange','Green','Blue','Purple'],
+        beltLevelArray: ['White','Yellow','Orange','Green','Blue','Purple', 'Brown', 'Red', 'Black'],
         allBeltLevels: true,
         beltColor: 'White',
         beltLevelLookUpTable:{
@@ -63,7 +71,11 @@
           'Green': 3,
           'Blue': 4,
           'Purple': 5,
+          'Brown': 6,
+          'Red': 7,
+          'Black': 8,
         },
+        //changes the flex layout depending on the display size
         trickListClassNameLookUpTable:{
           'xs': 'd-flex flex-column align-center',
           'sm': 'd-flex flex-column align-center',
@@ -78,7 +90,11 @@
           3: 'Green',
           4: 'Blue',
           5: 'Purple',
+          6: 'Brown',
+          7: 'Red',
+          8: 'Black'
         },
+        //changes width of main container  based on the display size
         containerWidthLookUpTable:{
           'xs': '90%',
           'sm': '90%',
@@ -86,6 +102,7 @@
           'lg': '80%',
           'xl': '80%',
         },
+        //changes height of the main container based on the display size
         containerHeightLookUpTable:{
           'xs': '200vh',
           'sm': '200vh',
@@ -93,6 +110,7 @@
           'lg': '100%',
           'xl': '100%',
         },
+        //changes the height of the belt select table based on display size
         beltSelectHeightLookUpTable:{
           'xs': '16.5%',
           'sm': '16.5%',
@@ -100,6 +118,7 @@
           'lg': '39%',
           'xl': '39%',
         },
+        //changes the width of the belt select table based on display size
         beltSelectWidthLookUpTable:{
           'xs': '90%',
           'sm': '90%',
@@ -107,6 +126,7 @@
           'lg': '50%',
           'xl': '50%',
         },
+        //changes the height of the belt select BELT based on display size
         beltSelectBeltHeightLookUpTable:{
           'xs': '5px',
           'sm': '5px',
@@ -114,6 +134,7 @@
           'lg': '10px',
           'xl': '10px',
         },
+        //changes the width of the trick width card of the trick based on the display size
         trickWidthLookUpTable:{
           'xs': 90,
           'sm': 90,
@@ -121,6 +142,7 @@
           'lg': 17.5,
           'xl': 17.5,
         },
+        //changes the height of the trick width card of the trick based on the display size
         trickHeightLookUpTable:{
           'xs': 3.3,
           'sm': 3.3,
@@ -128,6 +150,23 @@
           'lg': 21.5,
           'xl': 21.5,
         },
+        //changes the width of the slide out trick list menu based on display size
+        trickListWidthLookUpTable:{
+          'xs': 85,
+          'sm': 85,
+          'md': 55,
+          'lg': 55,
+          'xl': 55,
+        },
+        //changes the height of the slide out trick list menu based on display size
+        trickListHeightLookUpTable:{
+          'xs': 85,
+          'sm': 85,
+          'md': 85,
+          'lg': 85,
+          'xl': 85,
+        },
+        //adds a prefix, based on the index of the trick in the trickList, mainly so the first trick does not have a to
         trickPrefixLookUpTable:{
           0: ' ', 1: 'to ', 2: 'to ', 3: 'to ', 4: 'to ',
           5: 'to ', 6: 'to ', 7: 'to ', 8: 'to ', 9: 'to ',
@@ -161,44 +200,65 @@
       },
       trickHeight(){
         return this.trickHeightLookUpTable[this.$vuetify.breakpoint.name]
+      },
+      trickListWidth(){
+        return this.trickListWidthLookUpTable[this.$vuetify.breakpoint.name]
+      },
+      trickListHeight(){
+        return this.trickListHeightLookUpTable[this.$vuetify.breakpoint.name]
       }
     },
     methods:{
       //generates the kendama line
       generateDamaLine(){
+        //reset trick list array to an empty array
         this.trickListArray = [];
+        //get the from and to trick list from using a lookup table from our data object
         let fromTrickListIndex = this.beltLevelLookUpTable[this.fromBeltLevel];
         let toTrickListIndex = this.beltLevelLookUpTable[this.toBeltLevel];
+        //set empty variables for our current and past trick, we need to keep past of the past trick so we don't have a line of only one trick
         let currentTrick, pastTrick
-        console.log(fromTrickListIndex, toTrickListIndex)
+
+        //do a regular for loop to select a random trick FOR each number less than trick count starting from 0 and incrementing by 1
         for(let i = 0; i < this.trickCount; i++){
+          //find random belt level
           let randomBeltLevel;
-          if(this.allBeltLevels === true){
-            //get random belt level between the highest selected belt level and white belt
-            randomBeltLevel = this.getRandomIndex(fromTrickListIndex, toTrickListIndex + 1);
-          }
+          randomBeltLevel = this.getRandomIndex(fromTrickListIndex, toTrickListIndex + 1);
+          //find random belt index within the random belt level
           let randomIndex = this.getRandomIndex(0, this.trickList[randomBeltLevel].length);
+          //set current trick using the random index and the random belt level to select a trick from our store trick list
           currentTrick = this.trickList[randomBeltLevel][randomIndex];
-          console.log(randomBeltLevel, randomIndex, 'this is the first randomBelt level')
-          //edge case to create new trick if the same trick gets picked
-          if(currentTrick === pastTrick){
-            if(this.allBeltLevels){
-              //get random belt level between the highest selected belt level and white belt
+
+          //edge case to create new trick if the same trick gets picked or if the last trick picked is a spike
+          if((currentTrick === pastTrick) || (i + 1 === this.trickCount && currentTrick.spike === true)){
+            //define a function that we can keep calling if one of our conditions are not met
+            let pickAnother = () => {
+              //see comments at the beginning of the loop
               randomBeltLevel = this.getRandomIndex(fromTrickListIndex, toTrickListIndex + 1);
+              randomIndex = this.getRandomIndex(0, [this.trickList[randomBeltLevel].length - 1]);
+              currentTrick = this.trickList[randomBeltLevel][randomIndex];
+              //recursively call the function until we get a non spike trick for the last trick
+              if((currentTrick === pastTrick) || (i + 1 === this.trickCount && currentTrick.spike === true)) {
+                pickAnother();
+              }
             }
-            randomIndex = this.getRandomIndex(0, [this.trickList[randomBeltLevel].length - 1]);
-            console.log(randomBeltLevel, randomIndex, 'this is the first randomBelt level')
-            currentTrick = this.trickList[randomBeltLevel][randomIndex];
+            //call the pick another function until we pick a new trick
+            pickAnother();
           }
-          //push trick to trick list to be displayed
+
+          //create trickObject so we can add properties to display when we render the tricks
           let currentTrickObject = {};
           currentTrickObject['belt'] = this.beltLevelReverseLookUpTable[randomBeltLevel];
-          currentTrickObject['trick'] = currentTrick;
+          currentTrickObject['trick'] = currentTrick.trickName;
+          currentTrickObject['senior'] = currentTrick.senior;
+
+          //push trick to trick list to be displayed
           this.trickListArray.push(currentTrickObject);
           //set the past trick to the current trick so we can compare on the next loop iteration
           pastTrick = currentTrick;
         }
       },
+      //function for getting a random index
       getRandomIndex(min, max) {
         console.log(min, max)
           return Math.floor(Math.random() * (max - min) ) + min;
