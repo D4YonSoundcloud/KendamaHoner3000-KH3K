@@ -19,19 +19,7 @@ const routes = [
 const router = new VueRouter({
   routes,
 })
-// Your web app's Firebase configuration
-// For Firebase JS SDK v7.20.0 and later, measurementId is optional
-const firebaseConfig = {
-  apiKey: "AIzaSyC4ftJiVElFIdy_j6NMPq8pAgsKw3OAYEY",
-  authDomain: "kh3k-23880.firebaseapp.com",
-  projectId: "kh3k-23880",
-  storageBucket: "kh3k-23880.appspot.com",
-  messagingSenderId: "837268358875",
-  appId: "1:837268358875:web:73b819eb83a9e8c8ceaefe",
-  measurementId: "G-BS0FXET2M2"
-};
-// Initialize Firebase
-firebase.initializeApp(firebaseConfig);
+
 
 
 new Vue({
