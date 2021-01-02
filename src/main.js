@@ -4,7 +4,7 @@ import {store} from './store/store.js'
 import vuetify from './plugins/vuetify';
 import axios from 'axios';
 import VueRouter from 'vue-router';
-import firebase from 'firebase/app';
+// import firebase from 'firebase/app';
 import TrickGenerator from "@/components/TrickGenerator";
 import Login from "@/components/Login";
 
